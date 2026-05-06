@@ -1,37 +1,41 @@
 import React, { useState } from 'react'
-import ProductList from './components/ProductList'
+import ProductList, { sampleProducts } from './components/ProductList'
 import DarkModeToggle from './components/DarkModeToggle'
 import Cart from './components/Cart'
-import styles from './styles/DarkMode.module.css'
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [cartItems, setCartItems] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [cartItems, setCartItems] = useState([])
 
-  const handleToggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
+  const filteredProducts =
+    selectedCategory === 'all'
+      ? sampleProducts
+      : sampleProducts.filter((product) => product.category === selectedCategory)
+
+  const handleToggle = () => {
+    setIsDarkMode((prevMode) => !prevMode)
   }
 
   const handleAddToCart = (product) => {
-    setCartItems([...cartItems, product])
+    if (!cartItems.some((item) => item.id === product.id)) {
+      setCartItems((prevItems) => [...prevItems, product])
+    }
   }
 
   return (
-    <div className={isDarkMode ? styles.darkMode : styles.lightMode}>
-      <h1> Shopping App</h1>
+    <div className={isDarkMode ? 'darkMode' : ''}>
+      <h1>🛒 Shopping App</h1>
       <p>
         Welcome! Your task is to implement filtering, cart management, and dark
         mode.
       </p>
 
-      <DarkModeToggle
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={handleToggleDarkMode}
-      />
+      <DarkModeToggle isDarkMode={isDarkMode} onToggle={handleToggle} />
 
-      <label>Filter by Category: </label>
+      <label htmlFor="category-filter">Filter by Category: </label>
       <select
+        id="category-filter"
         value={selectedCategory}
         onChange={(event) => setSelectedCategory(event.target.value)}
       >
@@ -41,10 +45,7 @@ const App = () => {
         <option value="NonExistent">NonExistent</option>
       </select>
 
-      <ProductList
-        selectedCategory={selectedCategory}
-        onAddToCart={handleAddToCart}
-      />
+      <ProductList products={filteredProducts} onAddToCart={handleAddToCart} />
 
       <Cart cartItems={cartItems} />
     </div>
